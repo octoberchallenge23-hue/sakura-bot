@@ -8,20 +8,20 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 
-# ========== الإعدادات ==========
-BOT_TOKEN = "8805749137:AAGCA8zTxA_OpowLWpy_wX8pjPa9Q3wP"
-WALLET_ADDRESS = "0x27af4d8bd1f755697c4B5a8EcC297Ed6Ea1df99D"
-BIN_CHECK_URL = "https://cdpn.io/Kh4y/debug/qEqVPpj/full"
+# ========== Flask for Render ==========
+app_flask = Flask(__name__)
 
-# ========== Keep Alive for Render ==========
-keep_alive = Flask(__name__)
-
-@keep_alive.route('/')
+@app_flask.route('/')
 def home():
     return "🌸 Sakura is alive"
 
 def run_flask():
-    keep_alive.run(host='0.0.0.0', port=8080)
+    app_flask.run(host='0.0.0.0', port=10000)
+
+# ========== الإعدادات ==========
+BOT_TOKEN = "8805749137:AAGCA8zTxA_OpowLWpy_wX8pjPa9Q3wP"
+WALLET_ADDRESS = "0x27af4d8bd1f755697c4B5a8EcC297Ed6Ea1df99D"
+BIN_CHECK_URL = "https://cdpn.io/Kh4y/debug/qEqVPpj/full"
 
 # ========== قوائم البيانات الوهمية ==========
 BINS = [
@@ -147,7 +147,7 @@ def generate_fullz():
     remaining = ''.join([str(random.randint(0,9)) for _ in range(length - len(bin_))])
     card_number = bin_ + remaining
     month = str(random.randint(1,12)).zfill(2)
-    year = str(random.randint(27,31))  # 2027 إلى 2031
+    year = str(random.randint(27,31))
     cvv = ''.join([str(random.randint(0,9)) for _ in range(3)])
     first = random.choice(FIRST_NAMES)
     last = random.choice(LAST_NAMES)
@@ -297,10 +297,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['proof_data'] = ''
 
 def main():
-    # تشغيل Flask في خيط منفصل
     threading.Thread(target=run_flask).start()
-    
-    # تشغيل البوت
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.Document.ALL | filters.PHOTO, handle_document))
